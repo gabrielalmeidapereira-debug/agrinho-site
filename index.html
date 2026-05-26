@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGRINHO OS v2.026 - Enterprise Edition</title>
+    <style>
+        /* --- VARIÁVEIS E TEMA --- */
+        :root {
+            --bg-main: #0a0a0a;
+            --win-bg: #1e1e1e;
+            --win-border: #444;
+            --win-shadow: #000;
+            --neon-green: #39ff14;
+            --dark-green: #003300;
+            --text-gray: #b0b0b0;
+            --header-blue: #000080;
+            --pixel-size: 4px;
+        }
+
+        /* --- RESET E ESTILO CRT --- */
+        * { box-sizing: border-box; cursor: url('https://cur.cursors-4u.net/games/gam-4/gam372.cur'), auto; }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Efeito de scanline de monitor antigo */
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+        }
+
+        /* --- DESKTOP AREA --- */
+        #desktop {
+            flex: 1;
+            padding: 20px;
+            position: relative;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAANElEQVQ4y2NgYGD4z0AEMBKWp9EwGg2jYTSMhsFoGA3DCYyG0TAaRsNoGA2jYTSMhtEwGAYAtH0CBv9Id0IAAAAASUVORK5CYII='); /* Grid pontilhado */
+        }
+
+        .icon {
+            width: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: white;
+            text-shadow: 2px 2px #000;
+        }
+
+        .icon img {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 5px;
+            image-rendering: pixelated;
+            background: var(--dark-green);
+            border: 2px solid var(--neon-green);
+        }
+
+        /* --- JANELAS (WINDOWS) --- */
+        .window {
+            position: absolute;
+            background: var(--win-bg);
+            border: 3px solid #777;
+            border-top-color: #fff;
+            border-left-color: #fff;
+            box-shadow: 5px 5px 0px var(--win-shadow);
+            min-width: 300px;
+            z-index: 10;
+        }
+
+        .title-bar {
+            background: linear-gradient(90deg, #0000aa, #0080ff);
+            color: white;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .win-content {
+            padding: 15px;
+            border: 2px inset #444;
+            margin: 2px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #000;
+        }
+
+        /* --- ELEMENTOS ESPECÍFICOS --- */
+        .agrinho-logo {
+            color: var(--neon-green);
+            text-align: center;
+            font-size: 20px;
+            border: 2px dashed var(--neon-green);
+            padding: 10px;
+            margin-bottom: 10px;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 0.9; }
+        }
+
+        /* --- BARRA DE TAREFAS --- */
+        #taskbar {
+            height: 40px;
+            background: #c0c0c0;
+            border-top: 3px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+            z-index: 100;
+            color: black;
+        }
+
+        .start-btn {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-top-color: #fff;
+            border-left-color: #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 2px 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #clock {
+            margin-left: auto;
+            border: 2px inset #eee;
+            padding: 2px 10px;
+            background: #c0c0c0;
+            font-weight: bold;
+        }
+
+        /* --- TERMINAL --- */
+        .terminal-line { margin: 5px 0; color: #39ff14; }
+        .cursor { display: inline-block; width: 8px; height: 15px; background: var(--neon-green); animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div id="desktop">
+        <div class="icon" onclick="toggleWin('win-about')">
+            <div style="background: var(--neon-green); height: 50px; width: 50px; margin: 0 auto; clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+            <p>AGRINHO.EXE</p>
+        </div>
+
+        <div class="icon" onclick="toggleWin('win-terminal')">
+            <div style="background: #444; height: 50px; width: 50px; margin: 0 auto; border: 2px solid white;">_ ></div>
+            <p>PROMPT</p>
+        </div>
+
+        <div class="window" id="win-about" style="top: 50px; left: 150px;">
+            <div class="title-bar">
+                <span>Agrinho_Info_2026</span>
+                <span onclick="toggleWin('win-about')" style="cursor:pointer">[X]</span>
+            </div>
+            <div class="win-content">
+                <div class="agrinho-logo">AGRINHO 2026: Rumo ao Campo Digital</div>
+                <p>Status do Sistema: <span style="color: yellow;">OPERACIONAL</span></p>
+                <p>O Agrinho 2026 convida todos os alunos a explorarem a **Inovação no Campo**. Como o pixel se torna grão? Como o código protege a floresta?</p>
+                <hr>
+                <ul>
+                    <li>Preservação de Mananciais</li>
+                    <li>Drones de Baixo Bitrate</li>
+                    <li>Sustentabilidade 1.0</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="window" id="win-terminal" style="top: 200px; left: 400px; width: 400px;">
+            <div class="title-bar">
+                <span>Prompt de Comando - Safra Digital</span>
+                <span onclick="toggleWin('win-terminal')" style="cursor:pointer">[X]</span>
+            </div>
+            <div class="win-content" id="terminal-body">
+                <div class="terminal-line">C:\AGRINHO2026> inicializando protocolos...</div>
+                <div class="terminal-line">C:\AGRINHO2026> carregando dados da colheita... OK</div>
+                <div class="terminal-line">C:\AGRINHO2026> <span id="typed"></span><span class="cursor"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <div class="start-btn">
+            <div style="width: 15px; height: 15px; background: red; display: inline-block;"></div>
+            Iniciar
+        </div>
+        <div style="margin-left: 10px; font-size: 12px; color: #333;">Versão 2026.1.0 (Agrinho Edition)</div>
+        <div id="clock">00:00</div>
+    </div>
+
+    <script>
+        // --- FUNÇÃO RELÓGIO ---
+        function updateClock() {
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + 
+                         now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- FUNÇÃO FECHAR/ABRIR JANELA ---
+        function toggleWin(id) {
+            const win = document.getElementById(id);
+            win.style.display = (win.style.display === 'none') ? 'block' : 'none';
+        }
+
+        // --- EFEITO DE DIGITAÇÃO NO TERMINAL ---
+        const text = "A agricultura do futuro começa aqui no Paraná. Carregando modo sustentável...";
+        let i = 0;
+        function typeWriter() {
+            if (i < text.length) {
+                document.getElementById("typed").innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50);
+            }
+        }
+        setTimeout(typeWriter, 1500);
+
+        // --- LOGICA DE ARRASTAR JANELAS (DRAG & DROP) ---
+        document.querySelectorAll('.title-bar').forEach(header => {
+            header.onmousedown = function(event) {
+                let win = header.parentElement;
+                let shiftX = event.clientX - win.getBoundingClientRect().left;
+                let shiftY = event.clientY - win.getBoundingClientRect().top;
+
+                win.style.zIndex = 1000; // Traz para frente
+
+                function moveAt(pageX, pageY) {
+                    win.style.left = pageX - shiftX + 'px';
+                    win.style.top = pageY - shiftY + 'px';
+                }
+
+                function onMouseMove(event) {
+                    moveAt(event.clientX, event.clientY);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+
+                header.onmouseup = function() {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    header.onmouseup = null;
+                };
+            };
+            
+            header.ondragstart = function() { return false; };
+        });
+    </script>
+</body>
+</html>
